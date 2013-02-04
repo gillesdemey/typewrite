@@ -7,10 +7,23 @@ Usage
 =========
 Include the javascript file.
 
-Call the typewriter's write function:
+Call the typewriter's cycle function:
 
 ```javascript
-typewriter.Typewriter.write("typewriter", ["great taste.", "awesome ideas.", "a love for code.", "an obsession with details."]);
+typewriter.Typewriter.cycle("typewriter", ["great taste.", "awesome ideas.", "a love for code.", "an obsession with details."]);
+```
+
+or the write function
+
+```javascript
+typewriter.Typewriter.write("typewriter", "great taste.");
+```
+
+
+or the blink function
+
+```javascript
+typewriter.Typewriter.blink("typewriter");
 ```
 
 
