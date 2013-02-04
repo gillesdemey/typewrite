@@ -1,6 +1,6 @@
 /**
- * @author Gilles De Mey
- */
+* @author Gilles De Mey
+*/
 
 /* typewriter namespace */
 var typewriter = {};
@@ -13,10 +13,14 @@ typewriter.Typewriter = function()
   c_index = 0; // current index we are processing
 
   /* time variables, change to your desire */
-  var blink_interval = 600;
-  var type_interval = 70;
-  var construct_timeout = 1000;
-  var deconstruct_timeout = 1500;
+  var options = {
+    blink_interval : 600,
+    type_interval : 65,
+    construct_timeout : 600,
+    deconstruct_timeout : 1500,
+    caret_symbol : '|',
+    random : true
+  };
 
   typewriter.init = function(context_id, sentences) {
 
@@ -28,6 +32,11 @@ typewriter.Typewriter = function()
     a_sentences = sentences;
 
     /* for each item in array, deconstruct it and reconstruct the next one */
+
+    if ( options.random === true ) {
+      typewriter.random();
+    }
+
     typewriter.typewrite(a_sentences[c_index]);
 
     /* start blinking the cursor */
@@ -40,7 +49,7 @@ typewriter.Typewriter = function()
   {
 
     /* default 600ms interval */
-    if ( typeof(ms) === 'undefined') ms = blink_interval;
+    if ( typeof(ms) === 'undefined') ms = options.blink_interval;
 
     var blink = false;
 
@@ -68,16 +77,16 @@ typewriter.Typewriter = function()
     };
 
     removeCursor = function() {
-      document.getElementById(context).innerHTML = document.getElementById(context).innerHTML.replace('|', '');
+      document.getElementById(context).innerHTML = document.getElementById(context).innerHTML.replace(options.caret_symbol, '');
     };
 
     addCursor = function() {
-      document.getElementById(context).innerHTML += '|';
+      document.getElementById(context).innerHTML += options.caret_symbol;
     };
 
     type = function(s) {
       clearInterval(timer);
-      document.getElementById(context).innerHTML = s + '|';
+      document.getElementById(context).innerHTML = s + options.caret_symbol;
     };
 
   };
@@ -85,20 +94,20 @@ typewriter.Typewriter = function()
   typewriter.typewrite = function(s)
   {
 
-    if ( typeof( timeout ) === 'undefined' ) timeout = construct_timeout;
+    if ( typeof( timeout ) === 'undefined' ) timeout = options.construct_timeout;
 
-      /* wait a few seconds before constructing */
-      setTimeout(function(){
+    /* wait a few seconds before constructing */
+    setTimeout(function(){
 
-        typewriter.construct(s, function()
+      typewriter.construct(s, function()
+      {
+        setTimeout(function()
         {
-          setTimeout(function()
-          {
-            typewriter.deconstruct(s);
-          }, deconstruct_timeout);
-        });
+          typewriter.deconstruct(s);
+        }, options.deconstruct_timeout);
+      });
 
-      }, timeout);
+    }, timeout);
 
   };
 
@@ -113,7 +122,7 @@ typewriter.Typewriter = function()
     var timer = setInterval(function()
     {
       removeLastCharacter();
-    }, type_interval);
+    }, options.type_interval);
 
     function removeLastCharacter()
     {
@@ -145,6 +154,7 @@ typewriter.Typewriter = function()
 
         /* increase current index by one, modulo the length of the array to loop it */
         c_index = (c_index + 1) % a_sentences.length;
+
         // console.log(c_index);
         typewriter.typewrite(a_sentences[c_index]);
       }
@@ -165,7 +175,7 @@ typewriter.Typewriter = function()
     var timer = setInterval(function()
     {
       addLastCharacter(index);
-    }, type_interval);
+    }, options.type_interval);
 
     function addLastCharacter(i)
     {
@@ -187,6 +197,10 @@ typewriter.Typewriter = function()
       }
     }
 
+  };
+
+  typewriter.random = function() {
+    c_index = Math.floor( ( Math.random() * a_sentences.length ) );
   };
 
   return {
