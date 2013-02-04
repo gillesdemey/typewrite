@@ -12,7 +12,7 @@ typewriter.Typewriter = function()
   a_sentences = []; // the array holding the sentences
   c_index = 0; // current index we are processing
 
-  /* time variables, change to your desire */
+  /* typewriter variables, change to your desire */
   var options = {
     blink_interval : 600,
     type_interval : 65,
@@ -31,79 +31,77 @@ typewriter.Typewriter = function()
     /* set the sentences array */
     a_sentences = sentences;
 
-    /* for each item in array, deconstruct it and reconstruct the next one */
-
-    if ( options.random === true ) {
-      typewriter.random();
-    }
-
-    typewriter.typewrite(a_sentences[c_index]);
-
     /* start blinking the cursor */
-    typewriter.blink();
+    typewriter.blink(context);
     // console.log("blinking...");
   };
 
   /* blink function */
-  typewriter.blink = function(ms)
+  typewriter.blink = function(context_id, ms)
   {
 
     /* default 600ms interval */
     if ( typeof(ms) === 'undefined') ms = options.blink_interval;
 
     var blink = false;
+    var c = context_id;
 
     /* blink every x milliseconds */
     var timer = setInterval(function()
     {
-      doBlink();
+      doBlink(c);
     }, ms);
 
     /* bling, bling! */
-    doBlink = function()
+    doBlink = function(c)
     {
 
       if ( blink === true )
       {
         /* subtract caret */
-        removeCursor();
+        removeCursor(c);
         blink = false;
       } else {
         /* add caret */
-        addCursor();
+        addCursor(c);
         blink = true;
       }
 
     };
 
-    removeCursor = function() {
-      document.getElementById(context).innerHTML = document.getElementById(context).innerHTML.replace(options.caret_symbol, '');
+    removeCursor = function(c) {
+      document.getElementById(c).innerHTML = document.getElementById(c).innerHTML.replace(options.caret_symbol, '');
     };
 
-    addCursor = function() {
-      document.getElementById(context).innerHTML += options.caret_symbol;
+    addCursor = function(c) {
+      document.getElementById(c).innerHTML += options.caret_symbol;
     };
 
     type = function(s) {
       clearInterval(timer);
-      document.getElementById(context).innerHTML = s + options.caret_symbol;
+      document.getElementById(c).innerHTML = s + options.caret_symbol;
     };
 
   };
 
-  typewriter.typewrite = function(s)
+  typewriter.typewrite = function(context_id, sentences)
   {
 
     if ( typeof( timeout ) === 'undefined' ) timeout = options.construct_timeout;
 
+    /* randomness if true */
+    if ( options.random === true ) {
+      typewriter.random();
+    }
+
     /* wait a few seconds before constructing */
     setTimeout(function(){
 
-      typewriter.construct(s, function()
+      typewriter.construct(a_sentences[c_index], function()
       {
         setTimeout(function()
         {
-          typewriter.deconstruct(s);
+          typewriter.deconstruct(a_sentences[c_index]);
         }, options.deconstruct_timeout);
       });
 
@@ -135,7 +133,7 @@ typewriter.Typewriter = function()
         sentence = sentence.slice(0, -1);
 
         /* update the context element */
-        // // console.log(sentence, sentence.length);
+        // console.log(sentence, sentence.length);
         type(sentence);
 
       } else {
@@ -147,16 +145,16 @@ typewriter.Typewriter = function()
         // console.log("deconstruction complete!");
 
         /* subtract caret */
-        removeCursor();
+        removeCursor(context);
 
         /* start blinking again */
-        typewriter.blink();
+        typewriter.blink(context);
 
         /* increase current index by one, modulo the length of the array to loop it */
         c_index = (c_index + 1) % a_sentences.length;
 
         // console.log(c_index);
-        typewriter.typewrite(a_sentences[c_index]);
+        typewriter.typewrite(context, a_sentences);
       }
 
     }
@@ -185,15 +183,16 @@ typewriter.Typewriter = function()
         /* update variable */
         c_sentence = sentence.slice(0, i);
         type(c_sentence);
-        // // console.log(c_sentence, index);
+        // console.log(c_sentence, index);
         index++;
       } else {
         clearInterval(timer);
         // console.log("construction complete!");
-        removeCursor();
-        typewriter.blink();
+        removeCursor(context);
+        typewriter.blink(context);
 
-        callback();
+        if ( typeof( callback ) != 'undefined' ) callback();
+
       }
     }
 
@@ -204,7 +203,9 @@ typewriter.Typewriter = function()
   };
 
   return {
-    write : function(context_id, sentences) { typewriter.init(context_id, sentences); }
+    cycle : function(context_id, sentences) { typewriter.init(context_id, sentences); typewriter.typewrite(context_id, sentences); },
+    write : function(context_id, sentence, callback) { typewriter.init(context_id, sentence); typewriter.construct(sentence, callback); },
+    blink : function(context_id, ms) { typewriter.blink(context_id, ms); }
   };
 
 }();
