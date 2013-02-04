@@ -13,10 +13,10 @@ Call the typewriter's cycle function:
 typewriter.Typewriter.cycle("typewriter", ["great taste.", "awesome ideas.", "a love for code.", "an obsession with details."]);
 ```
 
-or the write function
+or the write function, which supports a custom callback method.
 
 ```javascript
-typewriter.Typewriter.write("typewriter", "great taste.");
+typewriter.Typewriter.write("typewriter", "great taste.", function(){ callback() });
 ```
 
 
